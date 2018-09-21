@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: ru.spbstu.application.configurator.model
+Bundle-ManifestVersion: 2
+Bundle-Name: ru.spbstu.application.configurator.model
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: ru.spbstu.application.configurator.model; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext,
+ org.eclipse.xtext.xbase,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.emf.ecore,
+ org.eclipse.xtext.xbase.lib;bundle-version="2.14.0",
+ org.antlr.runtime,
+ org.eclipse.xtext.util,
+ org.eclipse.emf.common,
+ org.eclipse.xtend.lib;bundle-version="2.14.0",
+ org.eclipse.core.resources;bundle-version="3.13.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: ru.spbstu.application.configurator.model.serializer,
+ ru.spbstu.application.configurator.model.infoProject.impl,
+ ru.spbstu.application.configurator.model.infoProject,
+ ru.spbstu.application.configurator.model.generator,
+ ru.spbstu.application.configurator.model.scoping,
+ ru.spbstu.application.configurator.model.parser.antlr,
+ ru.spbstu.application.configurator.model.validation,
+ ru.spbstu.application.configurator.model.services,
+ ru.spbstu.application.configurator.model,
+ ru.spbstu.application.configurator.model.infoProject.util,
+ ru.spbstu.application.configurator.model.parser.antlr.internal
+Import-Package: org.apache.log4j
+Bundle-ClassPath: snakeyaml-1.8.jar,
+ .

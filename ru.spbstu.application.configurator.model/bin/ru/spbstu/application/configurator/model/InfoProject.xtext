@@ -1,0 +1,571 @@
+grammar ru.spbstu.application.configurator.model.InfoProject with org.eclipse.xtext.common.Terminals
+
+generate infoProject "http://www.spbstu.ru/application/configurator/model/InfoProject"
+
+Model hidden(WS):
+    (element+=Version) 
+    (element+=Namespace)
+    (element+=Tenant)
+    (element+=Application)
+    (element+=Hold)
+    (element+=IngestNode)
+    (element+=ReceiveNode)
+    (element+=RetentionPolicy)
+    (element+=DispositionStrategy)
+    (element+=Space_attr)
+    (element+=CryptoObject)
+    (element+=XdbFederation)
+    (element+=XdbDatabase)
+    (element+=SpaceRootXdbLibrary)
+    (element+=XdbLibrary)
+    (element+=XdbLibraryPolicy)
+    (element+=Holding)
+    (element+=AuditEvent)
+    (element+=DeliveryChannel)
+    (element+=Confirmation)
+    (element+=HoldingCrypto)
+    (element+=Include);
+ 
+terminal VERSION_NUMBER: 
+    ('0'..'9')('.' | '0'..'9')*; 
+
+Version:
+    'version:' SPACE name=VERSION_NUMBER;
+Namespace:
+	'namespace:' 
+	(feature+=Prefix)
+	(feature+=Uri)
+;
+Prefix:
+	 {Prefix} 'prefix: ' name = (ID|'-'|'$'| '%'|'{'|'}'|'^'|':'|'.'|'\''|VERSION_NUMBER)*
+;
+Uri:
+	{Uri} 'uri:' SPACE name =(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER)*
+;   
+FeatureName hidden (WS, SPACE):
+	{FeatureName} 'name:' name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER|EXCEPTION))*; 
+Application:
+	 'application:' WS
+	 (features1+=FeatureName)
+	 (features+=ArchiveType)
+	 (feature+=Category)
+	 (feature+=Description)?
+	 (feature+=MCS)
+	 (feature+=Type)
+;
+Tenant:
+	 'tenant:' WS
+	(features+=FeatureName)
+         
+;
+Hold:
+	'hold:' 
+	 (features1+=FeatureName)
+	 (features+=HoldType)
+      
+;
+enum enumOfArchiveType:
+	SIP='sip' | TABLE='table'
+;
+ArchiveType:
+	'archiveType: ' value=enumOfArchiveType
+;
+Category:
+	{Category} 'category:' SPACE name= ID SPACE? ID? | (ID | ADDITION| VERSION_NUMBER)*
+;
+Description:
+	{Description} 'description:' SPACE name= (ID) (SPACE ID)* 
+;
+MCS:
+	{MCS} 'metadataCacheSize: ' name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*;
+enum enumOfTypes:
+	ACTIVE_ARCHIVING='active archiving' | APP_DECOMM='app decomm'
+;
+Type:
+	{Type} 'type:' SPACE value=enumOfTypes
+;
+HoldType:
+	'holdType:'+WS
+	(features+=FeatureName)?
+	(features+=TypeAttribute)	
+;
+TypeAttribute hidden (WS, SPACE): 
+	'type:' name = ID
+;
+ReceiveNode:
+	'receiverNode:'+WS
+	(features+=FeatureName)
+;
+RetentionPolicy hidden(WS):
+	'retentionPolicy:'WS
+	(features+=FeatureName)
+	(features+=AgingStrategy)
+	(features+=DispositionStrategy)
+	
+;
+AgingPeriod hidden(WS):
+	'agingPeriod:'
+	(features+=Units)
+	(features+=Value)
+;
+Units:
+	'units:' SPACE name=ID
+;
+Value:
+	{Value} 'value:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*
+;
+AgingStrategy hidden(WS):
+	'agingStrategy:'
+     (features+=AgingPeriod)
+     (features+=TypeAttribute)
+;
+DispositionStrategy:
+	'dispositionStrategy:' WS
+	(features+=TypeAttribute)
+;
+Space_attr:
+	'space:' WS
+	(features+=FeatureName)
+;
+CryptoObject hidden(WS):
+	'cryptoObject:' 
+	 (features+=FeatureName)
+	(features+=Configure)
+	(features+=PaddingScheme)
+	(features+=SecurityProvider)
+;
+Configure:
+	'configure:' SPACE name=ID
+;
+PaddingScheme:
+	{PaddingScheme} 'paddingScheme:' SPACE name=ID*|{PaddingScheme} VERSION_NUMBER
+
+;
+SecurityProvider:
+	'securityProvider:' SPACE name=ID
+;
+XdbFederation hidden (WS):
+	'xdbFederation:'
+	(feature+=FeatureName)
+	(feature+=Configure)
+	(feature+=Default)
+	(feature+=Bootstrap)
+	(feature+=SuperUserPassword)
+;
+Bootstrap:
+	{Bootstrap} 'bootstrap:' SPACE  name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+SuperUserPassword:
+	{SuperUserPassword} 'superUserPassword:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XdbDatabase hidden(WS):
+	'xdbDatabase:'
+	(features+=FeatureName)
+	(features+=Configure)
+	(features+=Default)
+	(features+=AdminPassword)
+;
+Default:
+	'default:' SPACE name = ID
+;
+AdminPassword:
+	 {AdminPassword} 'adminPassword:' SPACE name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*
+;
+SpaceRootXdbLibrary hidden(WS):
+	'spaceRootXdbLibrary:'
+	(features+=FeatureName)
+	(features+=Default)
+	(features+=SubPath)
+;
+XdbLibrary hidden(WS):
+	'xdbLibrary:'
+	(features+=FeatureName)
+	(features+=ParentSpaceRootXdbLibrary)
+	(features+=SubPath)
+;
+ParentSpaceRootXdbLibrary:
+	{ParentSpaceRootXdbLibrary} 'parentSpaceRootXdbLibrary:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*
+;
+SubPath:
+	{SubPath} 'subPath:' SPACE name=((ID|'-'|'%'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+
+XdbLibraryPolicy hidden (WS):
+	'xdbLibraryPolicy:'
+	(features+=FeatureName)
+	(features+=AipQuota)
+	(features+=AiuQuota)
+	(features+=CloseHintDateQuery)
+	(features+=CloseMode)
+	(features+=ClosePeriod)
+	(features+=AiuThreshold)
+	(features+=PKeyQuery)
+;
+AipQuota:
+	'aipQuota:' SPACE name=VERSION_NUMBER
+;
+AiuQuota:
+	'aiuQuota:' SPACE name=VERSION_NUMBER
+;
+CloseHintDateQuery:
+	{CloseHintDateQuery} 'closeHintDateQuery:' SPACE name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|EXCEPTION|VERSION_NUMBER))*
+;
+CloseMode:
+	'closeMode:' SPACE name=(ID) (SPACE ID)* 
+;
+ClosePeriod:
+	'closePeriod:' SPACE name=VERSION_NUMBER
+;
+AiuThreshold:
+	{AiuThreshold} 'aiuThreshold:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+PKeyQuery hidden(WS, SPACE):
+	{PKeyQuery} 'pKeyQuery:' '|' name = ((ID|'-'|'$'|'='| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+	
+;
+Holding hidden(WS):
+	'holding:'
+	(features+=FeatureName)
+	(features+=CiStore)
+	(features+=DefaultRetentionClass)
+	(features+=Description)
+	(features+=IngestNode)
+	(features+=LogStore)
+	(features+=ManagedItemStore)
+	(features+=PdiConfigs)
+	(features+=Priority)
+	(features+=RenditionStore)
+	(features+=RetentionClasses)
+	(features+=SipStore)
+	(features+=StagingStore)
+	(features+=SubPriorities)
+	(features+=XdbLibraryParent)
+	(features+=XdbMode)
+	(features+=XdbStore)
+	(features+=XmlStore)
+;
+CiStore:
+	{CiStore} 'ciStore:' SPACE name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+DefaultRetentionClass:
+	'defaultRetentionClass:' SPACE name=ID
+;
+LogStore:
+	{LogStore} 'logStore:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+ManagedItemStore:
+	'managedItemStore: ' SPACE name=ID
+;
+PdiConfigs hidden(WS):
+	{PdiConfigs} 'pdiConfigs:' '-' SPACE 'schema:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Priority:
+	'priority:' SPACE name=VERSION_NUMBER
+;
+RenditionStore:
+	{RenditionStore} 'renditionStore:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+RetentionClasses hidden (WS):
+	'retentionClasses:' '-' SPACE
+	(features+=FeatureName)
+	(feature+=Policies)
+;
+Policies hidden(WS):
+	{Policies} 'policies:'  '-' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+SipStore:
+	{SipStore} 'sipStore:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+StagingStore:
+	'stagingStore:' SPACE name=ID
+;
+SubPriorities hidden(WS, SPACE):
+	{SubPriorities} 'subPriorities'
+	(features+=Deadline)*
+;
+Deadline hidden (WS):
+	'deadline'
+	(features+=Priority) 
+;
+XdbLibraryParent:
+	{XdbLibraryParent} 'xdbLibraryParent:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XdbMode:
+	{XdbMode} 'xdbMode:'SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XdbStore:
+	{XdbStore} 'xdbStore:'SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XmlStore:
+	{XmlStore} 'xmlStore:'SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+AuditEvent hidden(WS):
+	'auditEvent:'
+	(feature+=FeatureName)
+	(feature+=Application_attr)
+	(feature+=Tenant_attr)
+	(feature+=TypeAttribute)
+;
+Application_attr:
+	{Application_attr} 'application:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Tenant_attr:
+	{Tenant_attr} 'tenant:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+DeliveryChannel hidden (WS):
+	'deliveryChannel:'
+	(feature+=FeatureName)
+	(feature+=FileName)
+	(feature+=Overwrite )
+	(feature+=Prefix)
+	(feature+=Store)
+	(feature+=SubPath)
+	(feature+=Suffix)
+;
+FileName:
+	{FileName} 'fileName:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Overwrite:
+	'overwrite:' SPACE name=ID
+;
+Store:
+	{Store} 'store:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Suffix:
+	{Suffix} 'suffix:' SPACE name=('.'|ID)*
+;
+Confirmation hidden(WS):
+	'confirmation:'
+	(feature+=FeatureName)
+	(feature+=DeliveryChannelParameters)
+	(feature+=Holdings)
+	(feature+=Types)
+;
+DeliveryChannelParameters hidden(WS):
+    'deliveryChannelParameters:'
+     (feature+=Aip_id)
+     (feature+=Ia_conf_datetime)
+     (feature+=Ia_conf_type)	
+;
+Aip_id:
+	{Aip_id} 'aip_id:' SPACE name= ((ID|'-'|'$'|'%'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |'\''|EXCEPTION|VERSION_NUMBER))*
+;
+Ia_conf_datetime:
+	{Ia_conf_datetime} 'ia_conf_datetime:' SPACE name= ((ID|'-'|'$'|'%'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|'\''|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Ia_conf_type:
+	{Ia_conf_type} 'ia_conf_type:' SPACE name= ((ID|'-'|'$'| '%'|'{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';'|'\'' |EXCEPTION|VERSION_NUMBER))*
+;
+Holdings hidden(WS, SPACE):
+	{Holdings} 'holdings:' name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+	
+;
+Types hidden(WS, SPACE):
+	{Types} 'types:' (name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*)*
+	
+;
+HoldingCrypto hidden (WS):
+	'holdingCrypto:'
+	(feature+=FeatureName)
+	(feature+=CryptoEncoding)
+	(feature+=Ci)
+	(feature+=Pdi)
+	(feature+=Sip)
+	(feature+=Pdis)
+;
+CryptoEncoding:
+	{CryptoEncoding} 'cryptoEncoding:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+	
+;
+Ci hidden(WS):
+	'ci:'
+	(feature+=CryptoEnabled)
+	(feature+=CryptoObject_attr)
+;
+CryptoEnabled:
+	{CryptoEnabled} 'cryptoEnabled:' SPACE name=(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER)*
+;
+CryptoObject_attr:
+{CryptoObject_attr} 'cryptoObject:' SPACE name=(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |VERSION_NUMBER)*	
+;
+Pdi hidden(WS):
+	'pdi:'
+	(feature+=CryptoEnabled)
+	(feature+=CryptoObject_attr)
+;
+Sip hidden(WS):
+	'sip:'
+	(feature+=CryptoEnabled)
+	(feature+=CryptoObject_attr)
+;
+Pdis hidden(WS):
+	'pdis:'
+	(feature+=Schema)
+;
+Schema hidden(SPACE):
+	{Schema}'-' 'schema:'  name= (ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |VERSION_NUMBER)*
+	
+;
+Include:
+	{Include} 'includes:'+WS
+	
+	(files+=FileDeclaration)*
+;
+FileDeclaration:
+	('-' SPACE)('/'?'../')*((ID|'-'|'$'| '{'|'}')*('/'))*((ID|'-'|'$'|'{'|'}')*'.'?ID?)
+;
+IngestNode:
+	'ingestNode:' WS 
+	 (features+=FeatureName)
+	 (features+=EnumCOD)
+	 (features+=EnumMR)
+	 (features+=LogLevel)
+;
+EnumCOD:
+	'enumerationCutoffDays:' SPACE name=VERSION_NUMBER
+;
+EnumMR:
+	'enumerationMinusRunning:' SPACE name=ID
+;
+LogLevel:
+	'logLevel:' SPACE name=ID
+;
+@Override 
+terminal ML_COMMENT: 
+	'#' -> '\n'
+;
+terminal SPACE:
+	' '
+;
+terminal ADDITION:
+	('$')*|('{')*|('}')*|('-')*|('.')*|(' ')*|(':')*
+;
+ 
+terminal EXCEPTION:
+	('.name')?|('metadataCacheSize:')?|(('.')?'agingPeriod.value'(':')?)?|('.adminPassword:')?|('.superUserPassword:')?
+	|('.aiuThreshold:')?|('.sip'(':')?)?|('.bootstrap:')?|('.cryptoEnabled')?|('-store'(':')?)?|('.xdbMode:')?|('.ci')?
+	|('.confirmation')?|(('.')?'agingStrategy'('.')?)?
+
+;
+
+
+/*
+Model hidden(WS):
+    (element+=Version) 
+    (element+=Namespace)
+    (element+=Tenant)
+    (element+=Application)
+    (element+=Hold)
+    (element+=IngestNode)
+    (element+=Include);
+ 
+terminal VERSION_NUMBER: 
+    ('0'..'9')('.' | '0'..'9')*; 
+
+Version:
+    'version:' SPACE name=VERSION_NUMBER;
+Namespace:
+	'namespace:' 
+	(feature+=Prefix)
+	(feature+=Uri)
+;
+Prefix:
+	 'prefix: ' name = ID
+;
+Uri:
+	{Uri} 'uri:' SPACE name =(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER)*
+;   
+FeatureName hidden (WS, SPACE):
+	{FeatureName} 'name:' name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER|EXCEPTION))*; 
+Application:
+	'application:' 
+	 (features1+=FeatureName)
+	 (features+=ArchiveType)
+	 (feature+=Category)
+	 (feature+=Description)?
+	 (feature+=MCS)
+	 (feature+=Type)
+;
+Tenant:
+	'tenant:' 
+	 (features1+=FeatureName)
+         
+;
+Hold:
+	'hold:' 
+	 (features1+=FeatureName)
+	 (features+=HoldType)
+      
+;
+enum enumOfArchiveType:
+	SIP='sip' | TABLE='table'
+;
+ArchiveType:
+	'archiveType: ' value=enumOfArchiveType
+;
+Category:
+	{Category} 'category:' SPACE name= ID SPACE? ID? | (ID | ADDITION| VERSION_NUMBER)*
+;
+Description:
+	{Description} 'description:' SPACE name= (ID) (SPACE ID)* 
+;
+MCS:
+	{MCS} 'metadataCacheSize: ' name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*;
+enum enumOfTypes:
+	ACTIVE_ARCHIVING='active archiving' | APP_DECOMM='app decomm'
+;
+Type:
+	{Type} 'type:' SPACE value=enumOfTypes
+;
+HoldType:
+	'holdType:'+WS
+	(features+=FeatureName)?
+	(features+=TypeAttribute)	
+;
+TypeAttribute hidden (WS, SPACE): 
+	'type:' name = ID
+;
+
+Include:
+	{Include} 'includes:'+WS
+	
+	(files+=FileDeclaration)*
+;
+FileDeclaration:
+	('-'SPACE)('/'?'../')*((ID|'-'|'$'| '{'|'}')*('/'))*((ID|'-'|'$'|'{'|'}')*'.'?ID?)
+;
+IngestNode:
+	'ingestNode:' WS 
+	 (features+=FeatureName)
+	 (features+=EnumCOD)
+	 (features+=EnumMR)
+	 (features+=LogLevel)
+;
+EnumCOD:
+	'enumerationCutoffDays:' SPACE name=VERSION_NUMBER
+;
+EnumMR:
+	'enumerationMinusRunning:' SPACE name=ID
+;
+LogLevel:
+	'logLevel:' SPACE name=ID
+;
+@Override 
+terminal ML_COMMENT: 
+	'#' -> '\n'
+;
+terminal SPACE:
+	' '
+;
+terminal ADDITION:
+	('$')*|('{')*|('}')*|('-')*|('.')*|(' ')*|(':')*
+;
+ 
+terminal EXCEPTION:
+	('name:')?|('metadataCacheSize:')?
+;
+ 
+terminal MY_INT:
+	('0'..'9')+
+;
+*/
