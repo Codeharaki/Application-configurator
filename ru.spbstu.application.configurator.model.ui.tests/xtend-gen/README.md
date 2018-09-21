@@ -1,0 +1,1 @@
+This folder is necessary for correct work of xtext project

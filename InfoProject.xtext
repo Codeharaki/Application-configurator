@@ -1,0 +1,571 @@
+grammar ru.spbstu.application.configurator.model.InfoProject with org.eclipse.xtext.common.Terminals
+
+generate infoProject "http://www.spbstu.ru/application/configurator/model/InfoProject"
+
+Model hidden(WS):
+    (element+=Version) 
+    (element+=Namespace)
+    (element+=Tenant)
+    (element+=Application)
+    (element+=Hold)
+    (element+=IngestNode)
+    (element+=ReceiveNode)
+    (element+=RetentionPolicy)
+    (element+=DispositionStrategy)
+    (element+=Space_attr)
+    (element+=CryptoObject)
+    (element+=XdbFederation)
+    (element+=XdbDatabase)
+    (element+=SpaceRootXdbLibrary)
+    (element+=XdbLibrary)
+    (element+=XdbLibraryPolicy)
+    (element+=Holding)
+    (element+=AuditEvent)
+    (element+=DeliveryChannel)
+    (element+=Confirmation)
+    (element+=HoldingCrypto)
+    (element+=Include);
+ 
+terminal VERSION_NUMBER: 
+    ('0'..'9')('.' | '0'..'9')*; 
+
+Version:
+    'version:' SPACE name=VERSION_NUMBER;
+Namespace:
+	'namespace:' 
+	(attribute+=Prefix)
+	(attribute+=Uri)
+;
+Prefix:
+	 {Prefix} 'prefix: ' name = (ID|'-'|'$'| '%'|'{'|'}'|'^'|':'|'.'|'\''|VERSION_NUMBER)*
+;
+Uri:
+	{Uri} 'uri:' SPACE name =(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER)*
+;   
+FeatureName hidden (WS, SPACE):
+	{FeatureName} 'name:' name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER|EXCEPTION))*; 
+Application:
+	 'application:' WS
+	 (attribute+=FeatureName)
+	 (attribute+=ArchiveType)
+	 (attribute+=Category)
+	 (attribute+=Description)?
+	 (attribute+=MCS)
+	 (attribute+=Type)
+;
+Tenant:
+	 'tenant:' WS
+	(attribute+=FeatureName)
+         
+;
+Hold:
+	'hold:' 
+	 (attribute+=FeatureName)
+	 (attribute+=HoldType)
+      
+;
+enum enumOfArchiveType:
+	SIP='sip' | TABLE='table'
+;
+ArchiveType:
+	'archiveType: ' value=enumOfArchiveType
+;
+Category:
+	{Category} 'category:' SPACE name= ID SPACE? ID? | (ID | ADDITION| VERSION_NUMBER)*
+;
+Description:
+	{Description} 'description:' SPACE name= (ID) (SPACE ID)* 
+;
+MCS:
+	{MCS} 'metadataCacheSize: ' name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*;
+enum enumOfTypes:
+	ACTIVE_ARCHIVING='active archiving' | APP_DECOMM='app decomm'
+;
+Type:
+	{Type} 'type:' SPACE value=enumOfTypes
+;
+HoldType:
+	'holdType:'+WS
+	(attribute+=FeatureName)?
+	(attribute+=TypeAttribute)	
+;
+TypeAttribute hidden (WS, SPACE): 
+	'type:' name = ID
+;
+ReceiveNode:
+	'receiverNode:'+WS
+	(attribute+=FeatureName)
+;
+RetentionPolicy hidden(WS):
+	'retentionPolicy:'WS
+	(attribute+=FeatureName)
+	(attribute+=AgingStrategy)
+	(attribute+=DispositionStrategy)
+	
+;
+AgingPeriod hidden(WS):
+	'agingPeriod:'
+	(attribute+=Units)
+	(attribute+=Value)
+;
+Units:
+	'units:' SPACE name=ID
+;
+Value:
+	{Value} 'value:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*
+;
+AgingStrategy hidden(WS):
+	'agingStrategy:'
+     (attribute+=AgingPeriod)
+     (attribute+=TypeAttribute)
+;
+DispositionStrategy:
+	'dispositionStrategy:' WS
+	(attribute+=TypeAttribute)
+;
+Space_attr:
+	'space:' WS
+	(attribute+=FeatureName)
+;
+CryptoObject hidden(WS):
+	'cryptoObject:' 
+	 (attribute+=FeatureName)
+	(attribute+=Configure)
+	(attribute+=PaddingScheme)
+	(attribute+=SecurityProvider)
+;
+Configure:
+	'configure:' SPACE name=ID
+;
+PaddingScheme:
+	{PaddingScheme} 'paddingScheme:' SPACE name=ID*|{PaddingScheme} VERSION_NUMBER
+
+;
+SecurityProvider:
+	'securityProvider:' SPACE name=ID
+;
+XdbFederation hidden (WS):
+	'xdbFederation:'
+	(attribute+=FeatureName)
+	(attribute+=Configure)
+	(attribute+=Default)
+	(attribute+=Bootstrap)
+	(attribute+=SuperUserPassword)
+;
+Bootstrap:
+	{Bootstrap} 'bootstrap:' SPACE  name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+SuperUserPassword:
+	{SuperUserPassword} 'superUserPassword:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XdbDatabase hidden(WS):
+	'xdbDatabase:'
+	(attribute+=FeatureName)
+	(attribute+=Configure)
+	(attribute+=Default)
+	(attribute+=AdminPassword)
+;
+Default:
+	'default:' SPACE name = ID
+;
+AdminPassword:
+	 {AdminPassword} 'adminPassword:' SPACE name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*
+;
+SpaceRootXdbLibrary hidden(WS):
+	'spaceRootXdbLibrary:'
+	(attribute+=FeatureName)
+	(attribute+=Default)
+	(attribute+=SubPath)
+;
+XdbLibrary hidden(WS):
+	'xdbLibrary:'
+	(attribute+=FeatureName)
+	(attribute+=ParentSpaceRootXdbLibrary)
+	(attribute+=SubPath)
+;
+ParentSpaceRootXdbLibrary:
+	{ParentSpaceRootXdbLibrary} 'parentSpaceRootXdbLibrary:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*
+;
+SubPath:
+	{SubPath} 'subPath:' SPACE name=((ID|'-'|'%'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+
+XdbLibraryPolicy hidden (WS):
+	'xdbLibraryPolicy:'
+	(attribute+=FeatureName)
+	(attribute+=AipQuota)
+	(attribute+=AiuQuota)
+	(attribute+=CloseHintDateQuery)
+	(attribute+=CloseMode)
+	(attribute+=ClosePeriod)
+	(attribute+=AiuThreshold)
+	(attribute+=PKeyQuery)
+;
+AipQuota:
+	'aipQuota:' SPACE name=VERSION_NUMBER
+;
+AiuQuota:
+	'aiuQuota:' SPACE name=VERSION_NUMBER
+;
+CloseHintDateQuery:
+	{CloseHintDateQuery} 'closeHintDateQuery:' SPACE name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|EXCEPTION|VERSION_NUMBER))*
+;
+CloseMode:
+	'closeMode:' SPACE name=(ID) (SPACE ID)* 
+;
+ClosePeriod:
+	'closePeriod:' SPACE name=VERSION_NUMBER
+;
+AiuThreshold:
+	{AiuThreshold} 'aiuThreshold:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+PKeyQuery hidden(WS, SPACE):
+	{PKeyQuery} 'pKeyQuery:' '|' name = ((ID|'-'|'$'|'='| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+	
+;
+Holding hidden(WS):
+	'holding:'
+	(attribute+=FeatureName)
+	(attribute+=CiStore)
+	(attribute+=DefaultRetentionClass)
+	(attribute+=Description)
+	(attribute+=IngestNode)
+	(attribute+=LogStore)
+	(attribute+=ManagedItemStore)
+	(attribute+=PdiConfigs)
+	(attribute+=Priority)
+	(attribute+=RenditionStore)
+	(attribute+=RetentionClasses)
+	(attribute+=SipStore)
+	(attribute+=StagingStore)
+	(attribute+=SubPriorities)
+	(attribute+=XdbLibraryParent)
+	(attribute+=XdbMode)
+	(attribute+=XdbStore)
+	(attribute+=XmlStore)
+;
+CiStore:
+	{CiStore} 'ciStore:' SPACE name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+DefaultRetentionClass:
+	'defaultRetentionClass:' SPACE name=ID
+;
+LogStore:
+	{LogStore} 'logStore:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+ManagedItemStore:
+	'managedItemStore: ' SPACE name=ID
+;
+PdiConfigs hidden(WS):
+	{PdiConfigs} 'pdiConfigs:' '-' SPACE 'schema:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Priority:
+	'priority:' SPACE name=VERSION_NUMBER
+;
+RenditionStore:
+	{RenditionStore} 'renditionStore:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+RetentionClasses hidden (WS):
+	'retentionClasses:' '-' SPACE
+	(attribute+=FeatureName)
+	(attribute+=Policies)
+;
+Policies hidden(WS):
+	{Policies} 'policies:'  '-' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+SipStore:
+	{SipStore} 'sipStore:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+StagingStore:
+	'stagingStore:' SPACE name=ID
+;
+SubPriorities hidden(WS, SPACE):
+	{SubPriorities} 'subPriorities'
+	(attribute+=Deadline)*
+;
+Deadline hidden (WS):
+	'deadline'
+	(attribute+=Priority) 
+;
+XdbLibraryParent:
+	{XdbLibraryParent} 'xdbLibraryParent:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XdbMode:
+	{XdbMode} 'xdbMode:'SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XdbStore:
+	{XdbStore} 'xdbStore:'SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+XmlStore:
+	{XmlStore} 'xmlStore:'SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+AuditEvent hidden(WS):
+	'auditEvent:'
+	(attribute+=FeatureName)
+	(attribute+=Application_attr)
+	(attribute+=Tenant_attr)
+	(attribute+=TypeAttribute)
+;
+Application_attr:
+	{Application_attr} 'application:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Tenant_attr:
+	{Tenant_attr} 'tenant:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+DeliveryChannel hidden (WS):
+	'deliveryChannel:'
+	(attribute+=FeatureName)
+	(attribute+=FileName)
+	(attribute+=Overwrite )
+	(attribute+=Prefix)
+	(attribute+=Store)
+	(attribute+=SubPath)
+	(attribute+=Suffix)
+;
+FileName:
+	{FileName} 'fileName:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Overwrite:
+	'overwrite:' SPACE name=ID
+;
+Store:
+	{Store} 'store:' SPACE name=((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Suffix:
+	{Suffix} 'suffix:' SPACE name=('.'|ID)*
+;
+Confirmation hidden(WS):
+	'confirmation:'
+	(attribute+=FeatureName)
+	(attribute+=DeliveryChannelParameters)
+	(attribute+=Holdings)
+	(attribute+=Types)
+;
+DeliveryChannelParameters hidden(WS):
+    'deliveryChannelParameters:'
+     (attribute+=Aip_id)
+     (attribute+=Ia_conf_datetime)
+     (attribute+=Ia_conf_type)	
+;
+Aip_id:
+	{Aip_id} 'aip_id:' SPACE name= ((ID|'-'|'$'|'%'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |'\''|EXCEPTION|VERSION_NUMBER))*
+;
+Ia_conf_datetime:
+	{Ia_conf_datetime} 'ia_conf_datetime:' SPACE name= ((ID|'-'|'$'|'%'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|'\''|';' |EXCEPTION|VERSION_NUMBER))*
+;
+Ia_conf_type:
+	{Ia_conf_type} 'ia_conf_type:' SPACE name= ((ID|'-'|'$'| '%'|'{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';'|'\'' |EXCEPTION|VERSION_NUMBER))*
+;
+Holdings hidden(WS, SPACE):
+	{Holdings} 'holdings:' name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+	
+;
+Types hidden(WS, SPACE):
+	{Types} 'types:' (name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*)*
+	
+;
+HoldingCrypto hidden (WS):
+	'holdingCrypto:'
+	(attribute+=FeatureName)
+	(attribute+=CryptoEncoding)
+	(attribute+=Ci)
+	(attribute+=Pdi)
+	(attribute+=Sip)
+	(attribute+=Pdis)
+;
+CryptoEncoding:
+	{CryptoEncoding} 'cryptoEncoding:' SPACE name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER))*
+	
+;
+Ci hidden(WS):
+	'ci:'
+	(attribute+=CryptoEnabled)
+	(attribute+=CryptoObject_attr)
+;
+CryptoEnabled:
+	{CryptoEnabled} 'cryptoEnabled:' SPACE name=(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |EXCEPTION|VERSION_NUMBER)*
+;
+CryptoObject_attr:
+{CryptoObject_attr} 'cryptoObject:' SPACE name=(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |VERSION_NUMBER)*	
+;
+Pdi hidden(WS):
+	'pdi:'
+	(attribute+=CryptoEnabled)
+	(attribute+=CryptoObject_attr)
+;
+Sip hidden(WS):
+	'sip:'
+	(attribute+=CryptoEnabled)
+	(attribute+=CryptoObject_attr)
+;
+Pdis hidden(WS):
+	'pdis:'
+	(attribute+=Schema)
+;
+Schema hidden(SPACE):
+	{Schema}'-' 'schema:'  name= (ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|'('|')'|'/'|'"'|';' |VERSION_NUMBER)*
+	
+;
+Include:
+	{Include} 'includes:'+WS
+	
+	(files+=FileDeclaration)*
+;
+FileDeclaration:
+	('-' SPACE)('/'?'../')*((ID|'-'|'$'| '{'|'}')*('/'))*((ID|'-'|'$'|'{'|'}')*'.'?ID?)
+;
+IngestNode:
+	'ingestNode:' WS 
+	 (attribute+=FeatureName)
+	 (attribute+=EnumCOD)
+	 (attribute+=EnumMR)
+	 (attribute+=LogLevel)
+;
+EnumCOD:
+	'enumerationCutoffDays:' SPACE name=VERSION_NUMBER
+;
+EnumMR:
+	'enumerationMinusRunning:' SPACE name=ID
+;
+LogLevel:
+	'logLevel:' SPACE name=ID
+;
+@Override 
+terminal ML_COMMENT: 
+	'#' -> '\n'
+;
+terminal SPACE:
+	' '
+;
+terminal ADDITION:
+	('$')*|('{')*|('}')*|('-')*|('.')*|(' ')*|(':')*
+;
+ 
+terminal EXCEPTION:
+	('.name')?|('metadataCacheSize:')?|(('.')?'agingPeriod.value'(':')?)?|('.adminPassword:')?|('.superUserPassword:')?
+	|('.aiuThreshold:')?|('.sip'(':')?)?|('.bootstrap:')?|('.cryptoEnabled')?|('-store'(':')?)?|('.xdbMode:')?|('.ci')?
+	|('.confirmation')?|(('.')?'agingStrategy'('.')?)?
+
+;
+
+
+/*
+Model hidden(WS):
+    (element+=Version) 
+    (element+=Namespace)
+    (element+=Tenant)
+    (element+=Application)
+    (element+=Hold)
+    (element+=IngestNode)
+    (element+=Include);
+ 
+terminal VERSION_NUMBER: 
+    ('0'..'9')('.' | '0'..'9')*; 
+
+Version:
+    'version:' SPACE name=VERSION_NUMBER;
+Namespace:
+	'namespace:' 
+	(attribute+=Prefix)
+	(attribute+=Uri)
+;
+Prefix:
+	 'prefix: ' name = ID
+;
+Uri:
+	{Uri} 'uri:' SPACE name =(ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER)*
+;   
+FeatureName hidden (WS, SPACE):
+	{FeatureName} 'name:' name = ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|VERSION_NUMBER|EXCEPTION))*; 
+Application:
+	'application:' 
+	 (attribute1+=FeatureName)
+	 (attribute+=ArchiveType)
+	 (attribute+=Category)
+	 (attribute+=Description)?
+	 (attribute+=MCS)
+	 (attribute+=Type)
+;
+Tenant:
+	'tenant:' 
+	 (attribute1+=FeatureName)
+         
+;
+Hold:
+	'hold:' 
+	 (attribute1+=FeatureName)
+	 (attribute+=HoldType)
+      
+;
+enum enumOfArchiveType:
+	SIP='sip' | TABLE='table'
+;
+ArchiveType:
+	'archiveType: ' value=enumOfArchiveType
+;
+Category:
+	{Category} 'category:' SPACE name= ID SPACE? ID? | (ID | ADDITION| VERSION_NUMBER)*
+;
+Description:
+	{Description} 'description:' SPACE name= (ID) (SPACE ID)* 
+;
+MCS:
+	{MCS} 'metadataCacheSize: ' name= ((ID|'-'|'$'| '{'|'}'|'^'|':'|'.'|EXCEPTION|VERSION_NUMBER))*;
+enum enumOfTypes:
+	ACTIVE_ARCHIVING='active archiving' | APP_DECOMM='app decomm'
+;
+Type:
+	{Type} 'type:' SPACE value=enumOfTypes
+;
+HoldType:
+	'holdType:'+WS
+	(attribute+=FeatureName)?
+	(attribute+=TypeAttribute)	
+;
+TypeAttribute hidden (WS, SPACE): 
+	'type:' name = ID
+;
+
+Include:
+	{Include} 'includes:'+WS
+	
+	(files+=FileDeclaration)*
+;
+FileDeclaration:
+	('-'SPACE)('/'?'../')*((ID|'-'|'$'| '{'|'}')*('/'))*((ID|'-'|'$'|'{'|'}')*'.'?ID?)
+;
+IngestNode:
+	'ingestNode:' WS 
+	 (attribute+=FeatureName)
+	 (attribute+=EnumCOD)
+	 (attribute+=EnumMR)
+	 (attribute+=LogLevel)
+;
+EnumCOD:
+	'enumerationCutoffDays:' SPACE name=VERSION_NUMBER
+;
+EnumMR:
+	'enumerationMinusRunning:' SPACE name=ID
+;
+LogLevel:
+	'logLevel:' SPACE name=ID
+;
+@Override 
+terminal ML_COMMENT: 
+	'#' -> '\n'
+;
+terminal SPACE:
+	' '
+;
+terminal ADDITION:
+	('$')*|('{')*|('}')*|('-')*|('.')*|(' ')*|(':')*
+;
+ 
+terminal EXCEPTION:
+	('name:')?|('metadataCacheSize:')?
+;
+ 
+terminal MY_INT:
+	('0'..'9')+
+;
+*/
