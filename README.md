@@ -10,3 +10,7 @@ This project is an RCP application for editing and creating "Declarative Configu
 ## Required plug-in
 This project requires snakeyaml plug-in. You can download it here: http://www.java2s.com/Code/Jar/s/Downloadsnakeyaml18sourcesjar.htm. To install it you should right-click on the ru.spbstu.application.configurator.model project.  **Build Path -> Confugure Build Path -> Libraries -> Add External JARs**. Choose snakeyaml jar.
 Go to Order and Export and put check mark next to snakeyaml jar. Apply and Close. You must also add the jar to the classpath, click on plugin.xml and go to Runtime.
+
+
+## Author
+* **HARAKI YOUNESS** - (https://github.com/Codeharaki)
